@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*!
  * cookie-parser
  * Copyright(c) 2014 TJ Holowaychuk

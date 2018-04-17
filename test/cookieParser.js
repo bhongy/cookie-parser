@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 var assert = require('assert')
 var cookieParser = require('..')
 var http = require('http')
