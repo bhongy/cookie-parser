@@ -97,4 +97,59 @@ describe('cookieParser()', () => {
   });
 });
 
+describe('cookieParser.JSONCookie(str)', () => {
+  const { JSONCookie } = cookieParser;
+
+  it('is a function', () => {
+    expect(typeof JSONCookie).toBe('function');
+  });
+
+  it('returns undefined for non-string arguments', () => {
+    expect(JSONCookie()).toBeUndefined();
+    expect(JSONCookie(undefined)).toBeUndefined();
+    expect(JSONCookie(null)).toBeUndefined();
+    expect(JSONCookie(42)).toBeUndefined();
+    expect(JSONCookie({ foo: 'bar' })).toBeUndefined();
+    expect(JSONCookie(['foo', 'bar'])).toBeUndefined();
+    expect(JSONCookie(function () {})).toBeUndefined();
+  });
+
+  it('returns undefined for non-JSON cookie string', () => {
+    expect(JSONCookie('')).toBeUndefined();
+    expect(JSONCookie('foo')).toBeUndefined();
+    expect(JSONCookie('{}')).toBeUndefined();
+  });
+
+  it('returns undefined for JSON cookie string without "j:" prefix', () => {
+    expect(JSONCookie('""')).toBeUndefined();
+    expect(JSONCookie('"moo"')).toBeUndefined();
+    expect(JSONCookie('2')).toBeUndefined();
+    expect(JSONCookie('true')).toBeUndefined();
+    expect(
+      JSONCookie('{"planet":"hoth","numSuns":1,"visited":false}')
+    ).toBeUndefined();
+  });
+
+  it('returns parsed value for JSON cookie string with "j:" prefix', () => {
+    expect(JSONCookie('j:""')).toEqual('');
+    expect(JSONCookie('j:"moo"')).toEqual('moo');
+    expect(JSONCookie('j:2')).toEqual(2);
+    expect(JSONCookie('j:true')).toEqual(true);
+    expect(
+      JSONCookie('j:{"planet":"hoth","numSuns":1,"visited":false}')
+    ).toEqual({
+      planet: 'hoth',
+      numSuns: 1,
+      visited: false
+    });
+  });
+
+  it('returns object for valid JSON cookie with extra whitespaces', () => {
+    expect(JSONCookie('j:  { "planet" :"hoth"  }')).toEqual({ planet: 'hoth' });
+  });
+
+  it('returns undefined on invalid JSON', function () {
+    expect(JSONCookie('j:{planet:"hoth"}')).toBeUndefined();
+    expect(JSONCookie('j:{"planet":"hoth"')).toBeUndefined();
+  });
 });
