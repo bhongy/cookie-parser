@@ -29,18 +29,15 @@ describe('cookieParser()', () => {
   it('calls the next middleware', () => {
     expect.assertions(1);
 
-    const next = jest.fn();
+    const nextMiddleware = jest.fn((req, res) => res.end());
     app = express();
     app.use(cookieParser());
-    app.get('/', (req, res) => {
-      next();
-      res.end();
-    });
+    app.use(nextMiddleware);
 
     return supertest(app)
       .get('/')
       .then(() => {
-        expect(next).toHaveBeenCalledTimes(1);
+        expect(nextMiddleware).toHaveBeenCalledTimes(1);
       });
   });
 
