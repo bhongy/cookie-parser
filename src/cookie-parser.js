@@ -4,6 +4,7 @@ const cookie = require('cookie');
 
 module.exports = cookieParser;
 module.exports.JSONCookie = JSONCookie;
+module.exports.JSONCookies = JSONCookies;
 
 function cookieParser () {
   return function cookieParserMiddleware (req, res, next) {
@@ -34,3 +35,25 @@ function JSONCookie (str) {
   }
 }
 
+function isPlainObject (obj) {
+  return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
+}
+
+/**
+ * Parse all values (non-recursive) of an object as JSON cookies.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @public
+ */
+
+function JSONCookies (obj) {
+  if (!isPlainObject(obj)) {
+    return obj;
+  }
+  return Object.entries(obj).reduce((newObj, [k, v]) => {
+    const parsed = JSONCookie(v);
+    newObj[k] = typeof parsed === 'undefined' ? v : parsed;
+    return newObj;
+  }, {});
+}

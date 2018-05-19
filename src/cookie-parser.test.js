@@ -153,3 +153,75 @@ describe('cookieParser.JSONCookie(str)', () => {
     expect(JSONCookie('j:{"planet":"hoth"')).toBeUndefined();
   });
 });
+
+describe('cookieParser.JSONCookies(obj)', () => {
+  const { JSONCookies } = cookieParser;
+
+  it('is a function', () => {
+    expect(typeof JSONCookies).toBe('function');
+  });
+
+  describe('when input is not an object', () => {
+    it('returns the input as-is', () => {
+      expect(JSONCookies(void 0)).toBeUndefined();
+      expect(JSONCookies(null)).toBeNull();
+      expect(JSONCookies('string')).toEqual('string');
+      expect(JSONCookies([1, 'abc'])).toEqual([1, 'abc']);
+      expect(JSONCookies([{}])).toEqual([{}]);
+    });
+  });
+
+  describe('when input is an object', () => {
+    it('parses values of the input object', () => {
+      expect(
+        JSONCookies({
+          distance: 'j:{"unit":"meter","value":10}',
+          mass: 'j:{"unit":"gram"}'
+        })
+      ).toEqual({
+        distance: { unit: 'meter', value: 10 },
+        mass: { unit: 'gram' }
+      });
+    });
+
+    it('works with objects created with Object.create(null)', () => {
+      const obj = Object.create(null);
+      obj.mass = 'j:{"unit":"pound"}';
+      expect(JSONCookies(obj)).toEqual({ mass: { unit: 'pound' } });
+    });
+
+    it('ignores values that are non-JSON cookie strings', () => {
+      expect(
+        JSONCookies({
+          time: undefined,
+          distance: '{"unit":"meter"}',
+          mass: {}
+        })
+      ).toEqual({
+        time: undefined,
+        distance: '{"unit":"meter"}',
+        mass: {}
+      });
+    });
+
+    it('works with a mix of valid and invalid values', () => {
+      expect(
+        JSONCookies({
+          distance: 'j:{"unit":"meter"}',
+          mass: '{10kg}'
+        })
+      ).toEqual({
+        distance: { unit: 'meter' },
+        mass: '{10kg}'
+      });
+    });
+
+    it('does not recursively parse values', () => {
+      expect(
+        JSONCookies({ distance: { unit: 'j:{"label":"meter"}' } })
+      ).toEqual({
+        distance: { unit: 'j:{"label":"meter"}' }
+      });
+    });
+  });
+});
