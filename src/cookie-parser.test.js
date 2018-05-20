@@ -42,7 +42,7 @@ describe('cookieParser()', () => {
   });
 
   describe('when no cookies are sent', () => {
-    it('should default req.cookies to {}', () => {
+    it('defaults req.cookies to {}', () => {
       expect.assertions(1);
       return supertest(app)
         .get('/')
@@ -51,7 +51,7 @@ describe('cookieParser()', () => {
         });
     });
 
-    it('should default req.signedCookies to {}', () => {
+    it('defaults req.signedCookies to {}', () => {
       expect.assertions(1);
       return supertest(app)
         .get('/signed')
@@ -62,7 +62,7 @@ describe('cookieParser()', () => {
   });
 
   describe('when cookies are sent', () => {
-    it('should populate req.cookies', () => {
+    it('populates req.cookies', () => {
       expect.assertions(1);
       return supertest(app)
         .get('/')
@@ -72,7 +72,7 @@ describe('cookieParser()', () => {
         });
     });
 
-    it('should inflate JSON cookies', () => {
+    it('inflates JSON cookies', () => {
       expect.assertions(1);
       return supertest(app)
         .get('/')
@@ -82,7 +82,7 @@ describe('cookieParser()', () => {
         });
     });
 
-    it('should not inflate invalid JSON cookies', () => {
+    it('does not inflate invalid JSON cookies', () => {
       expect.assertions(1);
       return supertest(app)
         .get('/')
