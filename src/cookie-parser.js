@@ -9,7 +9,7 @@ module.exports.JSONCookies = JSONCookies;
 function cookieParser () {
   return function cookieParserMiddleware (req, res, next) {
     req.cookies = req.headers.cookie
-      ? cookie.parse(req.headers.cookie)
+      ? JSONCookies(cookie.parse(req.headers.cookie))
       : Object.create(null);
     req.signedCookies = Object.create(null);
     next();

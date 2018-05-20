@@ -72,15 +72,15 @@ describe('cookieParser()', () => {
         });
     });
 
-    // it('should inflate JSON cookies', () => {
-    //   expect.assertions(1);
-    //   return supertest(app)
-    //     .get('/')
-    //     .set('Cookie', 'moo=j:{"foo":"bar"}')
-    //     .then(res => {
-    //       expect(res.body.cookies).toEqual({ moo: { foo: 'bar' } });
-    //     });
-    // });
+    it('should inflate JSON cookies', () => {
+      expect.assertions(1);
+      return supertest(app)
+        .get('/')
+        .set('Cookie', 'moo=j:{"foo":"bar"}')
+        .then(res => {
+          expect(res.body.cookies).toEqual({ moo: { foo: 'bar' } });
+        });
+    });
 
     it('should not inflate invalid JSON cookies', () => {
       expect.assertions(1);
