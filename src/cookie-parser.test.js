@@ -92,6 +92,30 @@ describe('cookieParser()', () => {
         });
     });
   });
+
+  describe('when req.cookies already exists', () => {
+    it('does nothing', () => {
+      expect.assertions(1);
+
+      const existingCookie = { cookie: 'set before cookieParser' };
+      app = express();
+      app.use((req, res, next) => {
+        req.cookies = existingCookie;
+        next();
+      });
+      app.use(cookieParser());
+      app.get('/', (req, res) => {
+        res.json({ cookies: req.cookies });
+});
+
+      return supertest(app)
+        .get('/')
+        .set('Cookie', 'foo=bar; bar=baz')
+        .then(res => {
+          expect(res.body.cookies).toEqual(existingCookie);
+        });
+    });
+  });
 });
 
 describe('cookieParser.JSONCookie(str)', () => {
