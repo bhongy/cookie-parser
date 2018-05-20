@@ -1,10 +1,12 @@
 'use strict';
 
 const cookie = require('cookie');
+const signature = require('cookie-signature');
 
 module.exports = cookieParser;
 module.exports.JSONCookie = JSONCookie;
 module.exports.JSONCookies = JSONCookies;
+module.exports.signedCookie = decodeSignedCookie;
 
 // TODO: refactor for cleaner implementation
 function cookieParser () {
@@ -61,4 +63,38 @@ function JSONCookies (obj) {
     newObj[k] = typeof parsed === 'undefined' ? v : parsed;
     return newObj;
   }, {});
+}
+
+/**
+ * Decode a signed cookie string.
+ *
+ * @param {string} str signed cookie string
+ * @param {string|string[]} secret
+ * @returns {string | false} decoded value
+ * @public
+ */
+
+function decodeSignedCookie (str, secret) {
+  if (typeof str !== 'string') {
+    return undefined;
+  }
+
+  if (str.substr(0, 2) !== 's:') {
+    return str;
+  }
+
+  const encoded = str.substr(2);
+  const secrets = Array.isArray(secret)
+    ? secret
+    : typeof secret === 'string'
+      ? [secret]
+      : [];
+
+  let decode;
+  secrets.find(s => {
+    decode = signature.unsign(encoded, s);
+    return decode !== false;
+  });
+
+  return decode;
 }

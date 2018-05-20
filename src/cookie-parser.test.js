@@ -246,3 +246,59 @@ describe('cookieParser.JSONCookies(obj)', () => {
     });
   });
 });
+
+describe('cookieParser.signedCookie(str, secret)', () => {
+  const SECRET = 'puppies!';
+  const { signedCookie } = cookieParser;
+
+  it('is a function', () => {
+    expect(typeof signedCookie).toBe('function');
+  });
+
+  it('returns undefined for non-string arguments', () => {
+    expect(signedCookie(undefined, SECRET)).toBeUndefined();
+    expect(signedCookie(null, SECRET)).toBeUndefined();
+    expect(signedCookie(42, SECRET)).toBeUndefined();
+    expect(signedCookie({ foo: 'bar' }, SECRET)).toBeUndefined();
+    expect(signedCookie(['lavender'], SECRET)).toBeUndefined();
+    expect(signedCookie(() => {}, SECRET)).toBeUndefined();
+  });
+
+  it('passes through non-signed string', () => {
+    expect(signedCookie('', SECRET)).toBe('');
+    expect(signedCookie('foo', SECRET)).toBe('foo');
+    expect(signedCookie('j:{}', SECRET)).toBe('j:{}');
+  });
+
+  it('returns unsigned value for signed string', () => {
+    const str =
+      's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI';
+    expect(signedCookie(str, SECRET)).toBe('labrador.retriever');
+  });
+
+  it('returns false for tampered signed string', () => {
+    const str =
+      's:golden.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI';
+    expect(signedCookie(str, SECRET)).toBe(false);
+  });
+
+  describe('when secret is an array', () => {
+    const SECRETS = ['puppies!', 'unused-secret', '3p$90-3#'];
+
+    it('returns unsigned value for the first successful decoding', () => {
+      const str1 =
+        's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI';
+      expect(signedCookie(str1, SECRETS)).toBe('labrador.retriever');
+
+      const str2 =
+        's:labrador.retriever.b+9dVEwBZdzGVMyDRGvMMW8wZKV9SKW3HOfK5ETOXys';
+      expect(signedCookie(str2, SECRETS)).toBe('labrador.retriever');
+    });
+
+    it('returns false if decoding fails for all secrets', () => {
+      const str =
+        's:golden.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI';
+      expect(signedCookie(str, SECRETS)).toBe(false);
+    });
+  });
+});
