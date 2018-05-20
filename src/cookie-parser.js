@@ -6,6 +6,7 @@ module.exports = cookieParser;
 module.exports.JSONCookie = JSONCookie;
 module.exports.JSONCookies = JSONCookies;
 
+// TODO: refactor for cleaner implementation
 function cookieParser () {
   return function cookieParserMiddleware (req, res, next) {
     if (req.cookies) {
@@ -22,7 +23,7 @@ function cookieParser () {
 /**
  * Parse JSON cookie string.
  *
- * @param {String} str
+ * @param {string} str
  * @return {?Object} Parsed object or undefined if not json cookie
  * @public
  */
@@ -50,6 +51,7 @@ function isPlainObject (obj) {
  * @public
  */
 
+// TODO: refactor for cleaner implementation
 function JSONCookies (obj) {
   if (!isPlainObject(obj)) {
     return obj;

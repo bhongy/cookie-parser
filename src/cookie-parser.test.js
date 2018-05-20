@@ -106,7 +106,7 @@ describe('cookieParser()', () => {
       app.use(cookieParser());
       app.get('/', (req, res) => {
         res.json({ cookies: req.cookies });
-});
+      });
 
       return supertest(app)
         .get('/')
