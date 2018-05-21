@@ -302,3 +302,78 @@ describe('cookieParser.signedCookie(str, secret)', () => {
     });
   });
 });
+
+describe('signedCookies(obj, secret)', () => {
+  const SECRET = 'puppies!';
+  const { signedCookies } = cookieParser;
+
+  it('is a function', () => {
+    expect(typeof signedCookies).toBe('function');
+  });
+
+  it('ignores non-signed strings', () => {
+    expect(signedCookies({}, SECRET)).toEqual({});
+    expect(signedCookies({ foo: 'bar' }, SECRET)).toEqual({});
+  });
+
+  it('includes tampered strings as false', () => {
+    const obj = {
+      pup: 's:golden.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI'
+    };
+    expect(signedCookies(obj, SECRET)).toEqual({ pup: false });
+  });
+
+  it('removes tampered strings from original object', () => {
+    const obj = {
+      pup: 's:golden.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI'
+    };
+    signedCookies(obj, SECRET);
+    expect(obj).toEqual({});
+  });
+
+  it('includes unsigned strings', () => {
+    const obj = {
+      pup: 's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI'
+    };
+    expect(signedCookies(obj, SECRET)).toEqual({ pup: 'labrador.retriever' });
+  });
+
+  it('removes signed strings from original object', () => {
+    const obj = {
+      pup: 's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI'
+    };
+    signedCookies(obj, SECRET);
+    expect(obj).toEqual({});
+  });
+
+  it('leaves non-signed strings in original object', function () {
+    const obj = {
+      pup: 's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI',
+      foo: 'a non-sign string'
+    };
+    expect(signedCookies(obj, SECRET)).toEqual({ pup: 'labrador.retriever' });
+    expect(obj).toEqual({ foo: 'a non-sign string' });
+  });
+
+  describe('when secret is an array', () => {
+    const SECRETS = ['puppies!', 'unused-secret', '3p$90-3#'];
+
+    it('includes unsigned strings for all secrets', () => {
+      const obj = {
+        foo: 's:labrador.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI',
+        bar: 's:dachshund.V9lIF2y1aSA12KMrg2G+Po/VCK0nng4xofrcwcSWt3s'
+      };
+      expect(signedCookies(obj, SECRETS)).toEqual({
+        foo: 'labrador.retriever',
+        bar: 'dachshund'
+      });
+    });
+
+    it('includes false if decoding fails for all secrets', () => {
+      const obj = {
+        foo: 's:golden.retriever.Kyj/E4CS/wky0JA1hywe0kFz7okaZcL49VWBjWoGfcI'
+      };
+      expect(signedCookies(obj, SECRETS)).toEqual({ foo: false });
+    });
+  });
+});

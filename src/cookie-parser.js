@@ -7,6 +7,7 @@ module.exports = cookieParser;
 module.exports.JSONCookie = JSONCookie;
 module.exports.JSONCookies = JSONCookies;
 module.exports.signedCookie = decodeSignedCookie;
+module.exports.signedCookies = decodeSignedCookies;
 
 // TODO: refactor for cleaner implementation
 function cookieParser () {
@@ -97,4 +98,26 @@ function decodeSignedCookie (str, secret) {
   });
 
   return decode;
+}
+
+/**
+ * Decode values (non-recursive) of an object as signed cookies.
+ * Remove decoded properties from the input object (mutative).
+ *
+ * @param {Object} obj
+ * @param {string|string[]} secret
+ * @return {Object}
+ * @public
+ */
+
+function decodeSignedCookies (obj, secret) {
+  const decoded = Object.create(null);
+  Object.entries(obj).forEach(([k, v]) => {
+    const dec = decodeSignedCookie(v, secret);
+    if (v !== dec) {
+      decoded[k] = dec;
+      delete obj[k];
+    }
+  });
+  return decoded;
 }
